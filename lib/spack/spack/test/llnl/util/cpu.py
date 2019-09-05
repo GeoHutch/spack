@@ -7,7 +7,6 @@ import pytest
 
 import contextlib
 import os.path
-import sys
 
 import jsonschema
 
@@ -105,36 +104,33 @@ def test_equality(supported_target):
             assert other_target != target
 
 
-@pytest.mark.parametrize('target,other_target,err_cls', [
-    (llnl.util.cpu.targets['x86'],
-     llnl.util.cpu.targets['skylake'],
-     ValueError),
-    (llnl.util.cpu.targets['bulldozer'],
-     llnl.util.cpu.targets['skylake'],
-     ValueError),
-    pytest.param(
-        llnl.util.cpu.targets['x86_64'], 'foo', TypeError,
-        marks=pytest.mark.xfail(
-            sys.version_info < (3, 0),
-            reason="Unorderable types comparison doesn't raise in Python 2"
-        )
-    ),
+@pytest.mark.parametrize('operation,expected_result', [
+    # Test microarchitectures that are ordered with respect to each other
+    ('x86_64 < skylake', True),
+    ('icelake > skylake', True),
+    ('piledriver <= zen', True),
+    ('zen2 >= zen', True),
+    ('zen >= zen', True),
+    # Test unrelated microarchitectures
+    ('power8 < skylake', False),
+    ('power8 <= skylake', False),
+    ('skylake < power8', False),
+    ('skylake <= power8', False),
+    # Test microarchitectures of the same family that are not a "subset"
+    # of each other
+    ('cascadelake > cannonlake', False),
+    ('cascadelake < cannonlake', False),
+    ('cascadelake <= cannonlake', False),
+    ('cascadelake >= cannonlake', False),
+    ('cascadelake == cannonlake', False),
+    ('cascadelake != cannonlake', True)
 ])
-def test_partial_ordering_failures(target, other_target, err_cls):
-    with pytest.raises(err_cls):
-        target < other_target
-
-
-@pytest.mark.parametrize('target,operation,other_target', [
-    (llnl.util.cpu.targets['x86_64'], '<', llnl.util.cpu.targets['skylake']),
-    (llnl.util.cpu.targets['icelake'], '>', llnl.util.cpu.targets['skylake']),
-    (llnl.util.cpu.targets['piledriver'], '<=', llnl.util.cpu.targets['zen']),
-    (llnl.util.cpu.targets['zen2'], '>=', llnl.util.cpu.targets['zen']),
-    (llnl.util.cpu.targets['zen'], '>=', llnl.util.cpu.targets['zen'])
-])
-def test_partial_ordering(target, operation, other_target):
-    code = 'target' + operation + 'other_target'
-    assert eval(code)
+def test_partial_ordering(operation, expected_result):
+    target, operator, other_target = operation.split()
+    target = llnl.util.cpu.targets[target]
+    other_target = llnl.util.cpu.targets[other_target]
+    code = 'target ' + operator + 'other_target'
+    assert eval(code) is expected_result
 
 
 @pytest.mark.parametrize('target_name,expected_family', [

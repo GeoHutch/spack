@@ -289,14 +289,11 @@ class MicroArchitecture(object):
             value.extend(a for a in parent.ancestors if a not in value)
         return value
 
-    def _ensure_strictly_orderable(self, other):
-        if self == other:
-            return
-
-        if not (self in other.ancestors or other in self.ancestors):
-            msg = "There is no ordering relationship between targets "
-            msg += "%s and %s." % (self.name, other.name)
-            raise ValueError(msg)
+    def _to_set(self):
+        """Returns a set of the nodes in this microarchitecture DAG."""
+        # This function is used to implement subset semantics with
+        # comparison operators
+        return set([str(self)] + [str(x) for x in self.ancestors])
 
     def __eq__(self, other):
         if not isinstance(other, MicroArchitecture):
@@ -316,23 +313,19 @@ class MicroArchitecture(object):
         if not isinstance(other, MicroArchitecture):
             return NotImplemented
 
-        self._ensure_strictly_orderable(other)
-
-        # If the current micro-architecture is in the list of ancestors
-        # of the other micro-architecture, then it's less than the other
-        if self in other.ancestors:
-            return True
-
-        return False
+        return self._to_set() < other._to_set()
 
     def __le__(self, other):
         return (self == other) or (self < other)
 
     def __gt__(self, other):
-        return not (self <= other)
+        if not isinstance(other, MicroArchitecture):
+            return NotImplemented
+
+        return self._to_set() > other._to_set()
 
     def __ge__(self, other):
-        return not (self < other)
+        return (self == other) or (self > other)
 
     def __repr__(self):
         cls_name = self.__class__.__name__
