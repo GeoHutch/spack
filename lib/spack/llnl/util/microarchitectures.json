@@ -288,7 +288,13 @@
         "clflushopt",
         "xsavec",
         "xsaveopt"
-      ]
+      ],
+      "compilers": {
+        "gcc": {
+          "versions": "5.3:",
+          "flags": "-march={name} -mtune={name}"
+        }
+      }
     },
     "skylake_avx512": {
       "from": "skylake",
