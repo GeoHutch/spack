@@ -848,18 +848,76 @@ that executables will run without the need to set ``LD_LIBRARY_PATH``.
 Architecture specifiers
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The architecture can be specified by using the reserved
-words ``target`` and/or ``os`` (``target=x86-64 os=debian7``). You can also
-use the triplet form of platform, operating system and processor.
+Each node in the dependency graph of a spec has an architecture attribute that characterizes it.
+This attribute contains information on the triplet of platform, operating system
+and processor. You can specify the elements of the triplet either separately, by using
+the reserved keywords ``platform``, ``os`` and ``target``:
+
+.. code-block:: console
+
+   $ spack install libelf platform=linux
+   $ spack install libelf os=ubuntu18.04
+   $ spack install libelf target=broadwell
+
+or together by using the reserved keyword ``arch``:
 
 .. code-block:: console
 
    $ spack install libelf arch=cray-CNL10-haswell
 
-Users on non-Cray systems won't have to worry about specifying the architecture.
-Spack will autodetect what kind of operating system is on your machine as well
-as the processor. For more information on how the architecture can be
-used on Cray machines, see :ref:`cray-support`
+Normally users don't have to bother specifying any of the components of the triplet
+if they are installing software for their host architecture as in that case the
+values will be detected automatically.
+
+.. admonition:: Cray machines
+
+  The situation is a little bit different for Cray machines and a detailed
+  explanation on how the architecture can be set on them can be found at :ref:`cray-support`
+
+"""""""""""""""""""""""""""""""""""""""
+Support for specific microarchitectures
+"""""""""""""""""""""""""""""""""""""""
+
+Spack knows how to detect and optimize for many specific microarchitectures
+(including recent Intel, AMD and IBM chips) and encodes this information in
+the ``target`` portion of the architecture specification.
+
+When a spec is installed Spack matches the compiler being used with the
+microarchitecture being targeted to inject appropriate optimization flags
+at compile time. Giving a command such as the following:
+
+.. code-block:: console
+
+   $ spack install zlib%gcc@9.0.1 target=icelake
+
+will produce under the hood compilation lines similar to:
+
+.. code-block:: console
+
+   $ /usr/bin/gcc-9 -march=icelake-client -mtune=icelake-client -c ztest10532.c
+   $ /usr/bin/gcc-9 -march=icelake-client -mtune=icelake-client -c -fPIC -O2 ztest10532.
+   ...
+
+where the flags ``-march=icelake-client -mtune=icelake-client`` have been injected
+by Spack based on the requested target and compiler.
+
+In case Spack knows that the requested compiler can't optimize for the current target
+it will exit with a meaningful error message:
+
+.. code-block:: console
+
+   $ spack install zlib%gcc@5.5.0 target=icelake
+   ==> Error: cannot produce optimized binary for micro-architecture "icelake" with gcc@5.5.0 [supported compiler versions are 8:]
+
+Finally if Spack has no information to match compiler and target, it will
+proceed with the installation but avoid injecting any microarchitecture
+specific flags.
+
+.. warning::
+
+   Currently Spack doesn't print any warning to the user if it has no information
+   on which optimization flags should be used for a given compiler. This behavior
+   might change in the future.
 
 .. _sec-virtual-dependencies:
 
