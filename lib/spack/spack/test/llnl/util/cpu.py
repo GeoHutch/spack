@@ -161,6 +161,16 @@ def test_features_query(target_name, feature):
     assert feature in target
 
 
+@pytest.mark.parametrize('target_name,wrong_feature', [
+    ('skylake', 1),
+    ('bulldozer', llnl.util.cpu.targets['x86_64'])
+])
+def test_wrong_types_for_features_query(target_name, wrong_feature):
+    target = llnl.util.cpu.targets[target_name]
+    with pytest.raises(TypeError, match='only objects of string types'):
+        assert wrong_feature in target
+
+
 def test_generic_microarchitecture():
     generic_march = llnl.util.cpu.generic_microarchitecture('foo')
 

@@ -344,6 +344,11 @@ class MicroArchitecture(object):
         return self.name
 
     def __contains__(self, feature):
+        # Feature must be of a string type, so be defensive about that
+        if not isinstance(feature, six.string_types):
+            msg = 'only objects of string types are accepted [got {0}]'
+            raise TypeError(msg.format(str(type(feature))))
+
         # Here we look first in the raw features, and fall-back to
         # feature aliases if not match was found
         if feature in self.features:
