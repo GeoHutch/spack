@@ -848,9 +848,9 @@ that executables will run without the need to set ``LD_LIBRARY_PATH``.
 Architecture specifiers
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Each node in the dependency graph of a spec has an architecture attribute that characterizes it.
-This attribute contains information on the triplet of platform, operating system
-and processor. You can specify the elements of the triplet either separately, by using
+Each node in the dependency graph of a spec has an architecture attribute.
+This attribute is a triplet of platform, operating system and processor.
+You can specify the elements either separately, by using
 the reserved keywords ``platform``, ``os`` and ``target``:
 
 .. code-block:: console
@@ -865,8 +865,8 @@ or together by using the reserved keyword ``arch``:
 
    $ spack install libelf arch=cray-CNL10-haswell
 
-Normally users don't have to bother specifying any of the components of the triplet
-if they are installing software for their host architecture as in that case the
+Normally users don't have to bother specifying the architecture
+if they are installing software for their current host as in that case the
 values will be detected automatically.
 
 .. admonition:: Cray machines
@@ -874,13 +874,18 @@ values will be detected automatically.
   The situation is a little bit different for Cray machines and a detailed
   explanation on how the architecture can be set on them can be found at :ref:`cray-support`
 
+.. _support-for-microarchitectures:
+
 """""""""""""""""""""""""""""""""""""""
 Support for specific microarchitectures
 """""""""""""""""""""""""""""""""""""""
 
 Spack knows how to detect and optimize for many specific microarchitectures
 (including recent Intel, AMD and IBM chips) and encodes this information in
-the ``target`` portion of the architecture specification.
+the ``target`` portion of the architecture specification. A complete list of
+the microarchitectures known to Spack can be obtained in the following way:
+
+.. command-output:: spack arch --known-targets
 
 When a spec is installed Spack matches the compiler being used with the
 microarchitecture being targeted to inject appropriate optimization flags
@@ -890,7 +895,7 @@ at compile time. Giving a command such as the following:
 
    $ spack install zlib%gcc@9.0.1 target=icelake
 
-will produce under the hood compilation lines similar to:
+will produce compilation lines similar to:
 
 .. code-block:: console
 
@@ -898,11 +903,11 @@ will produce under the hood compilation lines similar to:
    $ /usr/bin/gcc-9 -march=icelake-client -mtune=icelake-client -c -fPIC -O2 ztest10532.
    ...
 
-where the flags ``-march=icelake-client -mtune=icelake-client`` have been injected
+where the flags ``-march=icelake-client -mtune=icelake-client`` are injected
 by Spack based on the requested target and compiler.
 
-In case Spack knows that the requested compiler can't optimize for the current target
-it will exit with a meaningful error message:
+If Spack knows that the requested compiler can't optimize for the current target
+or can't build binaries for that target at all, it will exit with a meaningful error message:
 
 .. code-block:: console
 
