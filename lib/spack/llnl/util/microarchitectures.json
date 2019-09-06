@@ -681,6 +681,60 @@
         }
       }
     },
+    "ppc64": {
+      "from": null,
+      "vendor": "generic",
+      "features": [],
+      "compilers": {
+        "gcc": {
+          "versions": "4:",
+          "flags": "-mcpu={name} -mtune={name}"
+        }
+      }
+    },
+    "power7": {
+      "from": "ppc64",
+      "vendor": "IBM",
+      "generation": 7,
+      "features": [],
+      "compilers": {
+        "gcc": {
+          "versions": "4.5:",
+          "flags": "-mcpu={name} -mtune={name}"
+        }
+      }
+    },
+    "power8": {
+      "from": "power7",
+      "vendor": "IBM",
+      "generation": 8,
+      "features": [],
+      "compilers": {
+        "gcc": [
+          {
+            "versions": "4.9:",
+            "flags": "-mcpu={name} -mtune={name}"
+          },
+          {
+            "versions": "4.8:4.8.5",
+            "warnings": "Using GCC 4.8 to optimize for Power 8 might not work if you are not on Red Hat Enterprise Linux 7, where a custom backport of the feature has been done. Upstream support from GCC starts in version 4.9",
+            "flags": "-mcpu={name} -mtune={name}"
+          }
+        ]
+      }
+    },
+    "power9": {
+      "from": "power8",
+      "vendor": "IBM",
+      "generation": 9,
+      "features": [],
+      "compilers": {
+        "gcc": {
+          "versions": "6:",
+          "flags": "-mcpu={name} -mtune={name}"
+        }
+      }
+    },
     "ppc64le": {
       "from": null,
       "vendor": "generic",
@@ -692,29 +746,35 @@
         }
       }
     },
-    "power8": {
+    "power8le": {
       "from": "ppc64le",
       "vendor": "IBM",
       "generation": 8,
       "features": [],
       "compilers": {
-        "gcc": [{
-          "versions": "4.9:",
-          "flags": "-mcpu={name} -mtune={name}"
-        }, {
-          "versions": "4.8:4.8.5",
-          "warnings": "Using GCC 4.8 to optimize for Power 8 might not work if you are not on Red Hat Enterprise Linux 7, where a custom backport of the feature has been done. Upstream support from GCC starts in version 4.9",
-          "flags": "-mcpu={name} -mtune={name}"
-        }]
+        "gcc": [
+          {
+            "versions": "4.9:",
+            "name": "power8",
+            "flags": "-mcpu={name} -mtune={name}"
+          },
+          {
+            "versions": "4.8:4.8.5",
+            "warnings": "Using GCC 4.8 to optimize for Power 8 might not work if you are not on Red Hat Enterprise Linux 7, where a custom backport of the feature has been done. Upstream support from GCC starts in version 4.9",
+            "name": "power8",
+            "flags": "-mcpu={name} -mtune={name}"
+          }
+        ]
       }
     },
-    "power9": {
-      "from": "power8",
+    "power9le": {
+      "from": "power8le",
       "vendor": "IBM",
       "generation": 9,
       "features": [],
       "compilers": {
         "gcc": {
+          "name": "power9",
           "versions": "6:",
           "flags": "-mcpu={name} -mtune={name}"
         }
@@ -741,16 +801,21 @@
     "altivec": {
       "reason": "altivec is supported by Power PC architectures, but might not be listed in features",
       "families": [
-        "ppc64le"
+        "ppc64le",
+        "ppc64"
       ]
     },
     "sse4.1": {
       "reason": "permits to refer to sse4_1 also as sse4.1",
-      "any_of": ["sse4_1"]
+      "any_of": [
+        "sse4_1"
+      ]
     },
     "sse4.2": {
       "reason": "permits to refer to sse4_2 also as sse4.2",
-      "any_of": ["sse4_2"]
+      "any_of": [
+        "sse4_2"
+      ]
     }
   }
 }

@@ -24,9 +24,10 @@ from llnl.util.cpu import MicroArchitecture  # noqa
     'linux-rhel7-ivybridge',
     'linux-rhel7-haswell',
     'linux-rhel7-zen',
-    'linux-centos7-power8',
+    'linux-centos7-power8le',
     'darwin-mojave-ivybridge',
-    'darwin-mojave-broadwell'
+    'darwin-mojave-broadwell',
+    'bgq-rhel6-power7'
 ])
 def expected_target(request, monkeypatch):
     platform, operating_system, target = request.param.split('-')
@@ -37,7 +38,7 @@ def expected_target(request, monkeypatch):
     )
 
     # Monkeypatch for linux
-    if platform == 'linux':
+    if platform in ('linux', 'bgq'):
         monkeypatch.setattr(llnl.util.cpu.platform, 'system', lambda: 'Linux')
 
         @contextlib.contextmanager
