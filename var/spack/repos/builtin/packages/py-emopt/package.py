@@ -34,6 +34,7 @@ class PyEmopt(PythonPackage):
     # NOTE: emopt does not yet have specified releases, just the git master path
     # version('1.2.3', '0123456789abcdef0123456789abcdef')
     version("master", branch="master")
+    version("2019.5.6", branch="master", commit="06b648b")
 
     # FIXME: Add dependencies if required.
     extends("python")
